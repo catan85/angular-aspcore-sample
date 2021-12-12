@@ -1,0 +1,25 @@
+<mat-toolbar color="primary" class="toolbar-container">
+
+
+    <span class="title">Cybermes Diagnostic tool</span>
+    
+
+<div class="right-elements">
+    <div class="logged-user" *ngIf="authenticated()">
+        <h1>{{currentUser}}</h1>
+        <mat-icon aria-hidden="false" aria-label="User icon">perm_identity</mat-icon>
+    </div>
+
+    <button mat-button [matMenuTriggerFor]="menu" class="menu-button">
+        <mat-icon aria-hidden="false" aria-label="">more_vert</mat-icon>
+    </button>
+
+    <mat-menu #menu="matMenu">
+        <button mat-menu-item (click)="openLoginDialog()" *ngIf="!authenticated()">Login</button>
+        <button mat-menu-item (click)="logout()" *ngIf="authenticated()">Logout</button>
+    </mat-menu>
+</div>
+
+
+    
+</mat-toolbar>

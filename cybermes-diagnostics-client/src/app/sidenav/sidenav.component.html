@@ -1,0 +1,25 @@
+<!-- barra in alto-->
+<app-toolbar></app-toolbar>
+
+<mat-drawer-container class="app-sidenav-container">
+    <mat-drawer mode="side" opened class="app-sidenav mat-elevation-z10"> 
+        <mat-nav-list>
+            <mat-list-item>
+                <a matLine [routerLink]="['/main-content']">
+                    <mat-icon aria-hidden="false" aria-label="Example home icon">home</mat-icon>
+                    Main page
+                </a>
+            </mat-list-item>
+            <mat-list-item *ngIf="authenticated()">
+                <a matLine [routerLink]="['/service-explorer']">
+                    <mat-icon aria-hidden="false" aria-label="Example home icon">preview</mat-icon>
+                    Services explorer
+                </a>
+            </mat-list-item>
+        </mat-nav-list>
+    </mat-drawer>
+    <mat-drawer-content class="app-sidenav-content">
+
+        <router-outlet></router-outlet>
+    </mat-drawer-content>
+</mat-drawer-container>

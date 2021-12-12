@@ -1,0 +1,71 @@
+- ng add @angular/material (per aggiungere al progetto il riferimento al material design ed i suoi componenti)
+- il componente del routing è già stato creato durante la creazione del progetto, altrimenti si sarebbe dovuto creare adesso
+- creato un component main-content 
+    ng g c main-content
+- inserito un modulo per poter importare tutti assieme i riferimenti a material
+    ng g m material
+
+- aggiunto un componente material di prova (icon)
+    prendere la sintassi per il file ts e per l'html da material.angular.io
+
+- aggiunto componente sidenav che permette di gestire il menu a sinistra. Il sidenav è inserito nell'index, dentro al sidenav
+  mi trovo la parte sinistra che sarà il menu, fissa, la parte destra dinamica. Ho messo quindi il router-outlet nella parte destra,
+  quindi caricando le pagine nella barra degli indirizzi queste saranno caricate nella parte destra della schermata
+
+    per l'aggiunta della sidenav:
+    ng g c sidenav
+
+    aggiunto nel modulo material questo import/export:
+    import { MatSidenavModule } from '@angular/material/sidenav';
+    ed il relativo export MatSidenavModule
+
+- all'interno della sidenav ho aggiunto una lista che serve a vedere gli elementi del mio menu
+  la lista material è definita in html in questo modo <mat-nav-list>
+  necessita però dell'importazione di un modulo da material 
+
+    import { MatListModule} from '@angular/material/list';
+
+- aggiunto servizio per interrogare l'api del backend
+  ng g s services\weather-forecast
+
+- creata interfaccia per leggere i dati WeatherForecast
+
+- creata costante con l'indirizzo base dell'api
+
+- realizzato servizio per interrogare l'api backend che fa uso di observable
+- inserito il richiamo del servizio nel componente service-explorer
+  per fare funzionare il tutto ho dovuto importare il modulo Http in app.module.ts ed importarlo anche sotto
+    import { HttpClientModule } from '@angular/common/http';
+
+Non riesco a chiamare l'API per via delle cross domain policy CORS 
+Il problema è stato risolto lato server abilitando le chiamate cors provenienti da localhost:4200 (angular)
+Ci sono volute un paio di istruzioni, sia nella parte services che nella parte app
+
+- realizzato componente per il login che viene mostrato in un form. 
+- realizzato servizio per effettuare l'autenticazione.
+  che si occupa di effettuare una post con nome e password ed ottiene:
+    nell'x-token header il token jwt
+    nel body l'utente
+  a questo punto l'untente viene salvato nel local storage del sito, in questo modo possiamo deteterminare se siamo loggati
+  allo stesso modo salviamo anche il token per poter effettuare le chiamate protette sfruttando l'autenticazione ottenuta.
+
+
+- realizzato un http interceptor che permette di allegare l'authorization header "berarer: MIOTOKEN" 
+  così facendo evito ad ogni chiamata di allegare il token
+
+  per farlo ho creato la classe e l'ho inserita nell'app.module sotto la sezione providers
+
+    providers: [
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: JwtInterceptor,
+      multi: true
+    }
+
+
+
+PROSSIMI STEP:
+ * realizzare un http interceptor per allegare l'authorization header "berarer: MIOTOKEN" 
+ in questo modo non dovrò fare quel lavoro ad ogni chiamata HTTP.
+ * vedere dove salvare l'utente correntemente loggato per rendere evidente in alto il login avvenuto
+ * disabilitare il login se sono già loggato ed abilitare invece una funzione di logout

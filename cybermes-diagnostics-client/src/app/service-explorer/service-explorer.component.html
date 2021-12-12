@@ -1,0 +1,9 @@
+<div class="main-box">
+    <p>Here are your services:</p>
+    <mat-list role="list">
+        <mat-list-item *ngFor="let forecast of weatherForecasts | async">
+            It is {{ forecast.summary }}, temperature is {{forecast.temperatureC }} °C.
+        </mat-list-item>
+    </mat-list>
+</div>
+

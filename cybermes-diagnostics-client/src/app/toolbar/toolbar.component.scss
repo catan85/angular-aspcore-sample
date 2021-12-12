@@ -1,0 +1,17 @@
+// variabile da usare in più elementi
+$iconWidth: 56px;
+
+.toolbar-container{
+    display:flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.right-elements{
+    display:flex;
+}
+
+.logged-user{
+    display:flex;
+}
+
