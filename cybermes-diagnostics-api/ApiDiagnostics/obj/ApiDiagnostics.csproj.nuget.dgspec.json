@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Progetti\\Personali\\Web e Angular\\CyberMes-Diagnostics\\cybermes-diagnostics-api\\ApiDiagnostics\\ApiDiagnostics.csproj": {}
+    "C:\\Progetti\\Personali\\Web e Angular\\angular-aspcore-sample_cybermes-diag\\cybermes-diagnostics-api\\ApiDiagnostics\\ApiDiagnostics.csproj": {}
   },
   "projects": {
-    "C:\\Progetti\\Personali\\Web e Angular\\CyberMes-Diagnostics\\cybermes-diagnostics-api\\ApiDiagnostics\\ApiDiagnostics.csproj": {
+    "C:\\Progetti\\Personali\\Web e Angular\\angular-aspcore-sample_cybermes-diag\\cybermes-diagnostics-api\\ApiDiagnostics\\ApiDiagnostics.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Progetti\\Personali\\Web e Angular\\CyberMes-Diagnostics\\cybermes-diagnostics-api\\ApiDiagnostics\\ApiDiagnostics.csproj",
+        "projectUniqueName": "C:\\Progetti\\Personali\\Web e Angular\\angular-aspcore-sample_cybermes-diag\\cybermes-diagnostics-api\\ApiDiagnostics\\ApiDiagnostics.csproj",
         "projectName": "ApiDiagnostics",
-        "projectPath": "C:\\Progetti\\Personali\\Web e Angular\\CyberMes-Diagnostics\\cybermes-diagnostics-api\\ApiDiagnostics\\ApiDiagnostics.csproj",
+        "projectPath": "C:\\Progetti\\Personali\\Web e Angular\\angular-aspcore-sample_cybermes-diag\\cybermes-diagnostics-api\\ApiDiagnostics\\ApiDiagnostics.csproj",
         "packagesPath": "C:\\Users\\ancattaneo\\.nuget\\packages\\",
-        "outputPath": "C:\\Progetti\\Personali\\Web e Angular\\CyberMes-Diagnostics\\cybermes-diagnostics-api\\ApiDiagnostics\\obj\\",
+        "outputPath": "C:\\Progetti\\Personali\\Web e Angular\\angular-aspcore-sample_cybermes-diag\\cybermes-diagnostics-api\\ApiDiagnostics\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\DevExpress 21.1\\Components\\Offline Packages",
@@ -63,6 +63,10 @@
             "Swashbuckle.AspNetCore": {
               "target": "Package",
               "version": "[5.6.3, )"
+            },
+            "System.ServiceProcess.ServiceController": {
+              "target": "Package",
+              "version": "[6.0.0, )"
             }
           },
           "imports": [
