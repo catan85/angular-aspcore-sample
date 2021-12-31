@@ -43,7 +43,7 @@ namespace ApiDiagnostics.Utilities
             var token = new JwtSecurityToken(issuer: "Issuer",
                                              audience: "Audience",
                                              claims: identity.Claims,
-                                             expires: DateTime.Now.AddMinutes(2),
+                                             expires: DateTime.Now.AddMinutes(120),
                                              signingCredentials: credentials
                                              );
             var tokenHandler = new JwtSecurityTokenHandler();

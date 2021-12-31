@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { BreakpointObserver, Breakpoints, BreakpointState } from '@angular/cdk/layout';
-import { IWeatherForecast } from '../models/IWeatherForecast';
+import { ICybermesService } from '../models/ICybermesService';
 import { isObservable, Observable } from 'rxjs';
-import { WeatherForecastService } from '../services/weather-forecast.service';
+import { CyermesServicesService } from '../services/cybermes-services.service';
 import { Router } from '@angular/router';
 
 @Component({
@@ -12,21 +12,28 @@ import { Router } from '@angular/router';
 })
 export class ServiceExplorerComponent implements OnInit {
 
-  weatherForecasts : Observable<IWeatherForecast[]>;
+  cybermesServices : Observable<ICybermesService[]>;
 
   constructor(
     // inietto il service che accede all'api
-    private weatherForecastService: WeatherForecastService,
+    private cybermesServicesService: CyermesServicesService,
   ) { 
-    this.weatherForecasts = this.weatherForecastService.weatherForecasts;
+    this.cybermesServices = this.cybermesServicesService.cybermesServices;
   }
 
   ngOnInit(): void {
-     this.getWeatherForecasts();
+     this.getCybermesServices();
   }
 
-  public getWeatherForecasts(){
+  public getCybermesServices(){
     // viene lanciato il metodo che aggiorna l'observable
-    this.weatherForecastService.getPrivate();
+    this.cybermesServicesService.getPrivate();
   }
+
+  public download(appPath : string)
+  {
+    console.log('Download clicked, path is' + appPath);
+    this.cybermesServicesService.downloadFile(null,appPath);
+  }
+
 }

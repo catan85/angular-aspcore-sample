@@ -7,6 +7,11 @@ using System.ServiceProcess;
 using Microsoft.Win32;
 using System.IO;
 using ApiDiagnostics.Model;
+using System.IO.Compression;
+using ApiDiagnostics.Utilities;
+using System.Text.RegularExpressions;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace ApiDiagnostics
 {
@@ -39,42 +44,211 @@ namespace ApiDiagnostics
             }
 
 
+
+
             foreach (var service in filteredServices)
             {
                 var isRunning = service.Status == ServiceControllerStatus.Running;
 
                 var name = service.ServiceName;
                 var runn = isRunning ? "[RUNNING]" : service.Status.ToString();
-                var imagePath = GetImagePath(service);
-                var path = GetDirectoryPathOfServiceImage(imagePath);
+                var serviceImage = GetServiceImage(service);
+                var assemblyPath = GetAssemblyPathFromServiceImage(serviceImage);
+                var path = GetDirectoryPathOfServiceImage(serviceImage);
                 var vers = GetVersion(path + "\\ReleaseLog\\ReleaseLog.en-US.txt");
+                var containsException = LastLogFileContainsException(path);
+                var hasLogFiles = HasLogFiles(path);
 
-                Console.ForegroundColor = isRunning
-                    ? ConsoleColor.Green
-                    : ConsoleColor.Gray;
-
-                Console.WriteLine();
-                Console.WriteLine($" name : {name}");
-                Console.WriteLine($" runn : {runn}");
-                Console.WriteLine($" path : {path}");
-                Console.WriteLine($" vers : {vers}");
+                int? listeningPort = null;
+                if (name.Contains("ApiMes"))
+                {
+                    string apiMesCfgFilePath = path + "\\appsettings.json";
+                    if (File.Exists(apiMesCfgFilePath))
+                    {
+                        var apiMesConfiguration = JsonConvert.DeserializeObject<JObject>(System.IO.File.ReadAllText(apiMesCfgFilePath));
+                        listeningPort = Convert.ToInt32(apiMesConfiguration["SettingsUrl"]["Port"]);
+                    }
+                }
 
                 yield return new CybermesService()
                 {
                     Name = name,
                     IsRunning = isRunning,
                     Path = path,
-                    Version = vers
+                    AssemblyPath = assemblyPath,
+                    Version = vers,
+                    ContainsException = containsException,
+                    HasLogFiles = hasLogFiles,
+                    ListeningPort = listeningPort
                 };
             }
         }
 
-        private string GetImagePath(ServiceController service)
+        public (MemoryStream data,bool isZip) GetLogFiles(string applicationBasePath)
+        {
+            List<string> foundLogFiles = new List<string>();
+
+            // Il path del servizio potrebbe non esistere se fosse stato eliminato ma non disinstallato
+            if(Directory.Exists(applicationBasePath))
+            {
+                foreach (string file in Directory.EnumerateFiles(applicationBasePath, "*.txt", SearchOption.AllDirectories))
+                {
+                    string filename = System.IO.Path.GetFileName(file);
+                    bool filenameContainsLog = filename.IndexOf("log", StringComparison.OrdinalIgnoreCase) >= 0;
+                    if (filenameContainsLog)
+                        foundLogFiles.Add(file);
+                }
+
+                if (foundLogFiles.Count > 1)
+                {
+                    // zip files
+                    byte[] archiveFile;
+                    using (var archiveStream = new MemoryStream())
+                    {
+                        using (var archive = new ZipArchive(archiveStream, ZipArchiveMode.Create, true))
+                        {
+                            foreach (var file in foundLogFiles)
+                            {
+                                // Passiamo solo il file name per appiattire la lista (tutti i log nella root dello zip
+                                var zipArchiveEntry = archive.CreateEntry(System.IO.Path.GetFileName(file), CompressionLevel.Fastest);
+                                using (var zipStream = zipArchiveEntry.Open())
+                                {
+                                    byte[] fileContent = System.IO.File.ReadAllBytes(file);
+                                    zipStream.Write(fileContent, 0, fileContent.Length);
+                                }
+                            }
+                        }
+
+                        return (archiveStream, true);
+                    }
+                }
+                else if (foundLogFiles.Count == 1)
+                {
+                    // download directly
+                    MemoryStream ms = new MemoryStream();
+
+                    using (FileStream file = new FileStream(foundLogFiles[0], FileMode.Open, FileAccess.Read))
+                        file.CopyTo(ms);
+
+                    return (ms, false);
+
+                }
+            }
+            
+            return (null,false);
+        }
+
+        private bool HasLogFiles(string applicationBasePath)
+        {
+            List<string> foundLogFiles = new List<string>();
+
+            // Il path del servizio potrebbe non esistere se fosse stato eliminato ma non disinstallato
+            if (Directory.Exists(applicationBasePath))
+            {
+                foreach (string file in Directory.EnumerateFiles(applicationBasePath, "*.txt", SearchOption.AllDirectories))
+                {
+                    string filename = System.IO.Path.GetFileName(file);
+                    bool filenameContainsLog = filename.IndexOf("log", StringComparison.OrdinalIgnoreCase) >= 0;
+                    if (filenameContainsLog)
+                        foundLogFiles.Add(file);
+                }
+
+                if (foundLogFiles.Count >= 1)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private bool LastLogFileContainsException(string applicationBasePath)
+        {
+            List<string> lastLogFile = new List<string>();
+
+            // Il path del servizio potrebbe non esistere se fosse stato eliminato ma non disinstallato
+            if (Directory.Exists(applicationBasePath))
+            {
+                foreach (string file in Directory.EnumerateFiles(applicationBasePath, "*.txt", SearchOption.TopDirectoryOnly))
+                {
+                    string filename = System.IO.Path.GetFileName(file);
+
+                    // Ricerca di file txt contenenti la parola log nel nome file
+                    bool filenameContainsLog = StringContainsIgnoreCase(filename, "log");
+
+                    // I file di release log vanno esclusi
+                    bool filenameContainsRelease = StringContainsIgnoreCase(filename, "release");
+                    
+                    // L'ultimo file di log non contiene numeri
+                    bool filenameContainsDigits = filename.Any(char.IsDigit);
+
+
+                    if (filenameContainsLog && !filenameContainsRelease && !filenameContainsDigits)
+                        lastLogFile.Add(file);
+                }
+            }
+
+            if (lastLogFile.Count == 1)
+            {
+                List<string> lines = new List<string>();
+                using (StreamReader reader = new StreamReader(new FileStream(lastLogFile[0], FileMode.Open, FileAccess.Read, FileShare.ReadWrite)))
+                {
+                    // Use while not null pattern in while loop.
+                    string line;
+                    while ((line = reader.ReadLine()) != null)
+                    {
+                        lines.Add(line);
+                    }
+                }
+                lines.Reverse();
+                for (int i = 0; i<500 && i<lines.Count; i++)
+                {
+                    var containsError = LineContainsError(lines[i]);
+                    if (containsError)
+                    {
+                        return true;
+                    }
+                }
+            }
+            else if (lastLogFile.Count > 1)
+            {
+                Console.WriteLine("Too many log files found");
+            }
+            return false;
+        }
+
+        private bool LineContainsError(string line)
+        {
+            bool containsException = StringContainsIgnoreCase(line, "exception");
+            bool containsError = StringContainsIgnoreCase(line, "error");
+            return containsError || containsException;
+        }
+
+        private bool StringContainsIgnoreCase(string str, string searchString)
+        {
+            return str.IndexOf(searchString, StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+
+        private string GetServiceImage(ServiceController service)
         {
             var key = @"HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\" + service.ServiceName;
             var val = @"ImagePath";
 
             return Registry.GetValue(key, val, string.Empty).ToString();
+        }
+
+        private string GetAssemblyPathFromServiceImage(string serviceImage)
+        {
+            var parts = Regex.Matches(serviceImage, @"[\""].+?[\""]|[^ ]+")
+                .Cast<Match>()
+                .Select(m => m.Value)
+                .ToList();
+            if (parts.Count>0)
+            {
+                return parts[0].Trim('\"');
+            }else
+            {
+                return null;
+            }    
         }
 
         private static string GetDirectoryPathOfServiceImage(string path)

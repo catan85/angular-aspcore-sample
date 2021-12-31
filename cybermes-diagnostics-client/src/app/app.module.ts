@@ -12,6 +12,7 @@ import { ToolbarComponent } from './toolbar/toolbar.component';
 import { LoginComponent } from './login/login.component';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { JwtInterceptor } from './services/jwt-interceptor';
+import { ProxyManagerComponent } from './proxy-manager/proxy-manager.component';
 
 @NgModule({
   declarations: [
@@ -21,6 +22,7 @@ import { JwtInterceptor } from './services/jwt-interceptor';
     ServiceExplorerComponent,
     ToolbarComponent,
     LoginComponent,
+    ProxyManagerComponent,
   ],
   imports: [
     BrowserModule,

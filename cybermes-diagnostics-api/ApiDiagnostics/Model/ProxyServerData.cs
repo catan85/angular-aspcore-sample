@@ -1,0 +1,14 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace ApiDiagnostics.Model
+{
+    public class ProxyServerData
+    {
+        public string ManagementAddress { get; set; }
+        public string ListeningAddress { get; set; }
+        public string LinkedApiAddress { get; set; }
+    }
+}

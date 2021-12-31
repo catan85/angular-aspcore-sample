@@ -47,7 +47,9 @@ namespace ApiDiagnostics
 
                                       // deve essere esposto l'header x-token a chiamate CORS in modo da poter autenticare il client
                                       // il jwt token infatti viene messo nell'header "x-token"
-                                      builder.WithExposedHeaders("x-token");
+                                      builder.WithExposedHeaders(new string[]{ "x-token", "content-disposition"});
+
+
                                   });
             });
 
@@ -86,8 +88,10 @@ namespace ApiDiagnostics
                 };
             });
 
-            
 
+            services.AddTransient<CybermesServicesReader>();
+            services.AddTransient<CybermesProxiesManager>();
+            
 
         }
 

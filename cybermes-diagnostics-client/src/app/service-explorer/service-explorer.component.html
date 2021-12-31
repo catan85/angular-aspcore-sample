@@ -1,9 +1,23 @@
 <div class="main-box">
-    <p>Here are your services:</p>
-    <mat-list role="list">
-        <mat-list-item *ngFor="let forecast of weatherForecasts | async">
-            It is {{ forecast.summary }}, temperature is {{forecast.temperatureC }} °C.
-        </mat-list-item>
-    </mat-list>
+    <p>Services installed:</p>
+
+    <div>
+        <mat-card *ngFor="let cybermesService of cybermesServices | async" class="list-card">
+            <mat-card-title>
+                    <mat-icon mat-card-avatar *ngIf="cybermesService.isRunning" class="green-icon">check_circle</mat-icon>
+                    <mat-icon mat-card-avatar *ngIf="!cybermesService.isRunning" class="red-icon">cancel</mat-icon>
+                    {{ cybermesService.name }}
+                    <mat-icon mat-card-avatar *ngIf="cybermesService.containsException" class="yellow-icon">warning</mat-icon>
+            </mat-card-title>
+            <mat-card-subtitle>Version: {{cybermesService.version }}</mat-card-subtitle>
+            <mat-card-content>Path: {{cybermesService.path}} 
+            <mat-card-actions align="end" *ngIf="cybermesService.hasLogFiles">
+                <div (click)='download(cybermesService.path)'><mat-icon mat-card-avatar>download</mat-icon>Download logs</div>
+            </mat-card-actions>
+    
+        </mat-card-content>
+        </mat-card>
+    </div>
+
 </div>
 
