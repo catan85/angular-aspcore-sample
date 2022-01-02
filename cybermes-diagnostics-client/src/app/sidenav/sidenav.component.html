@@ -12,8 +12,14 @@
             </mat-list-item>
             <mat-list-item *ngIf="authenticated()">
                 <a matLine [routerLink]="['/service-explorer']">
-                    <mat-icon aria-hidden="false" aria-label="Example home icon">preview</mat-icon>
+                    <mat-icon aria-hidden="false" aria-label="Services explorer">preview</mat-icon>
                     Services explorer
+                </a>
+            </mat-list-item>
+            <mat-list-item *ngIf="authenticated()">
+                <a matLine [routerLink]="['/proxy-manager']">
+                    <mat-icon aria-hidden="false" aria-label="Proxy manager">mediation</mat-icon>
+                    Proxy manager
                 </a>
             </mat-list-item>
         </mat-nav-list>

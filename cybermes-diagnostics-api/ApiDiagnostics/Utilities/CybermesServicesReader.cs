@@ -66,7 +66,12 @@ namespace ApiDiagnostics
                     if (File.Exists(apiMesCfgFilePath))
                     {
                         var apiMesConfiguration = JsonConvert.DeserializeObject<JObject>(System.IO.File.ReadAllText(apiMesCfgFilePath));
-                        listeningPort = Convert.ToInt32(apiMesConfiguration["SettingsUrl"]["Port"]);
+                        var configuredPort = apiMesConfiguration["SettingsUrl"]["Port"];
+                        if (configuredPort != null)
+                        {
+                            listeningPort = Convert.ToInt32(configuredPort);
+                        }
+                        
                     }
                 }
 
@@ -113,7 +118,14 @@ namespace ApiDiagnostics
                                 var zipArchiveEntry = archive.CreateEntry(System.IO.Path.GetFileName(file), CompressionLevel.Fastest);
                                 using (var zipStream = zipArchiveEntry.Open())
                                 {
-                                    byte[] fileContent = System.IO.File.ReadAllBytes(file);
+                                    byte[] fileContent = null;
+                                    using (System.IO.FileStream fs = System.IO.File.Open(file, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.ReadWrite))
+                                    {
+                                        int numBytesToRead = Convert.ToInt32(fs.Length);
+                                        fileContent = new byte[(numBytesToRead)];
+                                        fs.Read(fileContent, 0, numBytesToRead);
+                                    }
+
                                     zipStream.Write(fileContent, 0, fileContent.Length);
                                 }
                             }

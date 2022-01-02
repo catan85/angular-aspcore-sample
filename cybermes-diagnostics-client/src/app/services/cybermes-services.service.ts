@@ -11,7 +11,13 @@ import { IMessage } from '../models/IMessage';
 })
 export class CyermesServicesService {
 
-  // definizione behaviorSubjects (non ricordo cosa faccia sta roba)
+  // Property get per esporre l'observable esternamente
+  get cybermesServices(): Observable<ICybermesService[]> {
+    return this._cybermesServices.asObservable();
+  }
+
+  // Behavior subject è una sorta di broker dove si può pubblicare
+  // dei valori tramite comando .next
   private _cybermesServices: BehaviorSubject<ICybermesService[]>;
 
   // definizione del datastore che riceverà i dati
@@ -27,34 +33,19 @@ export class CyermesServicesService {
     this._cybermesServices = new BehaviorSubject<ICybermesService[]>([]);
   }
 
-  // metodo get per l'interrogazione dell'api (non autenticata)
-  get(){
-    const url = `${BASE_URL}/WeatherForecast/Get`;
-    return this.httpClient.get<ICybermesService[]>(url)
-        .pipe(
-            retryWhen(errors => errors.pipe(delay(2000))),  // riprova un numero indeterminato di volte
-            )
-        .subscribe(data => {
-          this.datastore.cybermesServices = data;
-          console.log(data);
-
-          // non ricordo cosa faccia sta roba
-          this._cybermesServices.next(Object.assign({}, this.datastore).cybermesServices);
-        })
-  }
 
   // metodo get per l'interrogazione dell'api in modalità protetta
-  getPrivate(){
+  get(){
       const url = `${BASE_URL}/CybermesServicesController/GetAllServices`;
       return this.httpClient.get<ICybermesService[]>(url)
           .pipe(
-              retryWhen(errors => errors.pipe(delay(2000))),  // riprova un numero indeterminato di volte
+              retryWhen(errors => errors.pipe(delay(2000))),  // riprova un numero indeterminato di volte, ogni 2 sec
               )
           .subscribe(data => {
             this.datastore.cybermesServices = data;
             console.log(data);
   
-            // non ricordo cosa faccia sta roba
+            // alla ricezione di un valore pubblica sul behavior subject il nuovo valore ricevuto
             this._cybermesServices.next(Object.assign({}, this.datastore).cybermesServices);
           })
     }
@@ -102,10 +93,7 @@ export class CyermesServicesService {
       )
   }
     
-  // Property get per esporre l'observable esternamente
-  get cybermesServices(): Observable<ICybermesService[]> {
-    return this._cybermesServices.asObservable();
-  }
+
 
   handleError(error: HttpErrorResponse)
   {

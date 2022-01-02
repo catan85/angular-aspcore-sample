@@ -1,4 +1,5 @@
 ﻿using ApiDiagnostics.Model;
+using ApiDiagnostics.Utilities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using RestSharp;
@@ -16,39 +17,47 @@ namespace ApiDiagnostics
     {
 
         const int MAX_API_ATTEMPTS = 20;
-        public IEnumerable<CybermesProxy> GetAllProxies(IEnumerable<CybermesService> foundServices, List<string> configuredProxies)
+        public IEnumerable<CybermesProxy> GetAllProxies(IEnumerable<CybermesService> foundServices, List<ProxyServerConfiguration> configuredProxies)
         {
             Dictionary<int,CybermesService> foundApi = new Dictionary<int,CybermesService>();
             foreach (var service in foundServices)
             {
-                if (StringContainsIgnoreCase(service.Name, "apiMes") && service.IsRunning)
+                if (StringContainsIgnoreCase(service.Name, "apiMes") && service.ListeningPort != null)
                 {
                     foundApi.Add(service.ListeningPort.Value, service);
                 }
             }
 
-            List<CybermesProxy> result = new List<CybermesProxy>();
-
-            foreach (var proxy in configuredProxies)
+            foreach (var configuredProxy in configuredProxies)
             {
-                var proxyServerData = GetProxyServerData(proxy);
+                var cybermesProxy = new CybermesProxy();
 
-                if (proxyServerData!= null)
+                cybermesProxy.Name = configuredProxy.Name;
+                cybermesProxy.ListeningAddress = configuredProxy.ListeningAddress;
+                cybermesProxy.ManagementAddress = configuredProxy.ManagementAddress;
+                
+                var proxyServerData = GetProxyServerData(configuredProxy.ManagementAddress);
+
+                if (proxyServerData != null)
                 {
-                    var linkedApiPort = Convert.ToInt32(proxyServerData.LinkedApiAddress.Split(":")[1]);
+                    if (proxyServerData.LinkedApiAddress.IpEquals(configuredProxy.ForwardingProductionAddress))
+                    {
+                        cybermesProxy.UpdateMode = false;
+                    }
+                    else if (proxyServerData.LinkedApiAddress.IpEquals(configuredProxy.ForwardingUpdatingAddress))
+                    {
+                        cybermesProxy.UpdateMode = true;
+                    }
+
+                    var linkedApiPort = Convert.ToInt32(configuredProxy.ForwardingProductionAddress.Split(":")[1]);
                     if (foundApi.ContainsKey(linkedApiPort))
                     {
-                        result.Add(new CybermesProxy
-                        {
-                            Name = "CybermesProxy",
-                            LinkedApiMes = foundApi[linkedApiPort],
-                            ListeningAddress = proxyServerData.ListeningAddress,
-                            ManagementAddress = proxyServerData.ManagementAddress
-                        });
+                        cybermesProxy.LinkedApiMes = foundApi[linkedApiPort];
                     }
+
+                    yield return cybermesProxy;
                 }
             }
-            return result;
         }
 
         public bool TurnApiMesUpdateModeOn(CybermesProxy proxy)
@@ -102,8 +111,11 @@ namespace ApiDiagnostics
         {
             // Run the new apiMesService
             ServiceController sc = new ServiceController(proxy.LinkedApiMes.Name);
-            sc.Start();
-
+            if (sc.Status == ServiceControllerStatus.Stopped)
+            {
+                sc.Start();
+            }
+            
             // Check if the apiMes is reachable
             string configFilePath = proxy.LinkedApiMes.Path + "\\appsettings.json";
             var configJsonString = System.IO.File.ReadAllText(configFilePath);

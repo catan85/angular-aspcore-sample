@@ -19,6 +19,10 @@ namespace ApiDiagnostics.Controllers
             cybermesServicesReader = reader;
         }
 
+        /// <summary>
+        /// Gets a list of all the camozzi services installed on the server
+        /// </summary>
+        /// <returns></returns>
         // [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpGet]
         [Route("/CybermesServicesController/GetAllServices")]
@@ -28,6 +32,10 @@ namespace ApiDiagnostics.Controllers
             return cybermesServicesReader.GetInstalledServices();
         }
 
+
+        /// <summary>
+        /// Donwload all the logs file found in an application path
+        /// </summary>
         // [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpGet]
         [Route("/CybermesServicesController/DownloadAllLogFiles")]

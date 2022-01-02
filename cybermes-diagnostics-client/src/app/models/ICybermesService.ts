@@ -5,4 +5,5 @@ export interface ICybermesService {
     isRunning: boolean
     hasLogFiles: boolean
     containsException: boolean
+    listeningPort: number
 }

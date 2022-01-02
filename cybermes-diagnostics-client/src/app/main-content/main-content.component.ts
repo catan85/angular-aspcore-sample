@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { Observable } from 'rxjs';
+import { UtilitiesService } from '../services/utilities.service';
 
 @Component({
   selector: 'app-main-content',
@@ -7,9 +9,32 @@ import { Component, OnInit } from '@angular/core';
 })
 export class MainContentComponent implements OnInit {
 
-  constructor() { }
+  utilitiesService: UtilitiesService;
+
+  apiMesUrlClients: Observable<string>;
+  apiMesUrlReports: Observable<string>;
+  apiMesUrlServices: Observable<string>;
+
+  constructor(utilitiesService: UtilitiesService) { 
+    this.utilitiesService = utilitiesService;
+
+    // associazione degli observable locali a quelli del servizio.
+    // quando il servizio aggiornerà i valori li riceveremo automaticamente 
+    // negli observable
+    this.apiMesUrlClients = this.utilitiesService.apiMesUrlClients;
+    this.apiMesUrlReports = this.utilitiesService.apiMesUrlReports;
+    this.apiMesUrlServices = this.utilitiesService.apiMesUrlServices;
+  }
 
   ngOnInit(): void {
+    this.GetAllApiMesUrls();
+  }
+
+  public GetAllApiMesUrls()
+  {
+    this.utilitiesService.getApiMesUrlClients();
+    this.utilitiesService.getApiMesUrlReports();
+    this.utilitiesService.getApiMesUrlServices();
   }
 
 }

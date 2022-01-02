@@ -1,1 +1,23 @@
-<p>proxy-manager works!</p>
+<div class="main-box" [formGroup]="formGroup">
+    <p>Found active proxies (installed as a service):</p>
+
+    <div>
+        <mat-card *ngFor="let cybermesProxy of cybermesProxies | async" class="list-card">
+            <mat-card-title>{{ cybermesProxy.name }} </mat-card-title>
+            <mat-card-subtitle>Management address: {{cybermesProxy.managementAddress}}</mat-card-subtitle>
+            <mat-card-content>
+                Listining on: <strong>{{cybermesProxy.listeningAddress}}</strong> <br>
+                Forwarding to service: <strong>{{cybermesProxy.linkedApiMes.name}}</strong> <br>
+                Forwarding to port: <strong>{{cybermesProxy.linkedApiMes.listeningPort}}</strong> <br>
+            <mat-card-actions align="end" *ngIf="cybermesProxy.linkedApiMes">
+                <mat-slide-toggle 
+                [(ngModel)]="cybermesProxy.updateMode" 
+                (change)="updateToggleChanged(cybermesProxy)"
+                formControlName="updateToggleSlider">Update</mat-slide-toggle>
+            </mat-card-actions>
+    
+            </mat-card-content>
+        </mat-card>
+    </div>
+
+</div>

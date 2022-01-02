@@ -1,4 +1,42 @@
 <div class='main-box'>
     <h1>Cybermes Diagnostic tool</h1>
-    <p>Current tool version: 1.0.0.0</p>
+
+    <table>
+        <tr>
+            <td class="bTop" colspan="2">
+            </td>
+        </tr>
+        <tr>
+            <td class="bLeft">
+                Current tool version:
+            </td>
+            <td class="bRight">
+                1.0.0.0
+            </td>
+        </tr>
+        <tr>
+            <td class="bLeft">
+                Current ApiMesUrl for clients:
+            </td>
+            <td class="bRight">
+                {{(apiMesUrlClients|async)}}
+            </td>
+        </tr>
+        <tr>
+            <td class="bLeft">
+                Current ApiMesUrl for reports:
+            </td>
+            <td class="bRight">
+                {{(apiMesUrlReports|async)}}
+            </td>
+        </tr>
+        <tr>
+            <td class="bLeft">
+                Current ApiMesUrl for services:
+            </td>
+            <td class="bRight">
+                {{(apiMesUrlServices|async)}}
+            </td>
+        </tr>
+    </table>
 </div>

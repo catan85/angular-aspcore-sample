@@ -27,7 +27,7 @@ export class ServiceExplorerComponent implements OnInit {
 
   public getCybermesServices(){
     // viene lanciato il metodo che aggiorna l'observable
-    this.cybermesServicesService.getPrivate();
+    this.cybermesServicesService.get();
   }
 
   public download(appPath : string)
